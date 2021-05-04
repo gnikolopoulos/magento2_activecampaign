@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+
+  <event name="customer_save_after">
+    <observer name="id_activecampaign_observer_customer" instance="ID\ActiveCampaign\Observer\Customer" />
+  </event>
+
+  <event name="sales_order_place_after">
+    <observer name="id_activecampaign_observer_order" instance="ID\ActiveCampaign\Observer\Order" />
+  </event>
+
+  <event name="order_cancel_after">
+    <observer name="id_activecampaign_observer_cancel" instance="ID\ActiveCampaign\Observer\Cancel" />
+  </event>
+
+  <event name="customer_delete_before">
+    <observer name="id_activecampaign_observer_delete" instance="ID\ActiveCampaign\Observer\Delete" />
+  </event>
+</config>

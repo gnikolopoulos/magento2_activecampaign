@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+	<system>
+		<tab id="interactivedesign" sortOrder="999" translate="label">
+			<label>Interactive Design</label>
+		</tab>
+
+		<section id="activecampaign" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+			<label>ActiveCampaign Deep Data Integration</label>
+			<tab>interactivedesign</tab>
+			<resource>ID_ActiveCampaign::config_id_activecampaign</resource>
+			<group id="general" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label">
+				<label>ActiveCampaign Connection Info</label>
+				<field id="name" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>Connection Name</label>
+					<comment/>
+				</field>
+
+				<field id="link" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>Connection Link URL</label>
+					<comment/>
+				</field>
+
+				<field id="logo" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>Connection Logo URL</label>
+					<comment/>
+				</field>
+			</group>
+			<group id="login" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label">
+				<label>ActiveCampaign REST API Credentials</label>
+				<field id="api_url" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>API URL</label>
+					<comment/>
+				</field>
+
+				<field id="key" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>Access Key</label>
+					<comment/>
+				</field>
+
+				<field id="integration_id" showInDefault="1" showInStore="0" showInWebsite="0" sortOrder="10" translate="label" type="text">
+					<label>Integration ID</label>
+					<comment/>
+				</field>
+
+				<field id="create_integration" translate="label" type="button" sortOrder="2" showInDefault="1" showInWebsite="0" showInStore="0">
+				  <label>Create ActiveCampaign Integration</label>
+				  <frontend_model>ID\ActiveCampaign\Block\Adminhtml\System\Config\Integration</frontend_model>
+				</field>
+			</group>
+		</section>
+	</system>
+</config>

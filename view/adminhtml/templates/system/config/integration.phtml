@@ -1,0 +1,27 @@
+<script>
+    require([
+        'jquery',
+        'prototype',
+    ], function(jQuery){
+        function ajax_create_integration() {
+            params = {};
+
+            new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+                loaderArea:     true,
+                showLoader:     true,
+                asynchronous:   true,
+                parameters:     params,
+                onSuccess: function(transport) {
+                    var response = JSON.parse(transport.responseText);
+                    alert(response.messages);
+                }
+            });
+        }
+
+        jQuery('#create_integration').click(function () {
+            ajax_create_integration();
+        });
+    });
+</script>
+
+<?php echo $block->getButtonHtml() ?>
