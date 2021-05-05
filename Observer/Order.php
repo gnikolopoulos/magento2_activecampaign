@@ -15,6 +15,7 @@ class Order implements \Magento\Framework\Event\ObserverInterface
   protected $_logger;
   protected $_helper;
   protected $_path = '/api/3/ecomOrders';
+  protected $_customers_path = '/api/3/ecomCustomers';
   protected $_clientFactory;
   protected $_responseFactory;
   protected $_client;
@@ -48,10 +49,10 @@ class Order implements \Magento\Framework\Event\ObserverInterface
     $order = $observer->getEvent()->getOrder();
 
     if( $order->getCustomerIsGuest() ) {
-      return $this;
+      $ac_id = $this->createAcCustomer($order);
+    } else {
+      $ac_id = $this->getCustomerId($order);
     }
-
-    $ac_id = $this->getCustomerId($order);
 
     if( !$ac_id ) {
       return $this;
@@ -118,6 +119,30 @@ class Order implements \Magento\Framework\Event\ObserverInterface
     }
 
     return $order_products;
+  }
+
+  private function createAcCustomer($order) {
+    $params = array(
+      'headers' => array('Api-Token' => $this->_helper->getLoginConfig('key')),
+      'json' => array( 'ecomCustomer' => array(
+        'connectionid' => $this->_helper->getLoginConfig('integration_id'),
+        'externalid' => 999,
+        'email' => $order->getBillingAddress()->getEmail(),
+        'acceptsMarketing' => 1
+      )),
+    );
+
+    try {
+      $response = $this->_client->request('POST', $this->_customers_path, $params);
+
+      if( $response->getStatusCode() == 201 ) {
+        $response_data = json_decode($response->getBody());
+        return $response_data->ecomCustomer->id;
+      }
+    } catch (GuzzleException $exception) {
+      $this->_logger->info('exception');
+      $this->_logger->info($exception->getMessage());
+    }
   }
 
 }

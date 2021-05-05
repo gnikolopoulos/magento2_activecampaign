@@ -38,35 +38,70 @@ class Customer implements \Magento\Framework\Event\ObserverInterface
 
   public function execute(\Magento\Framework\Event\Observer $observer)
   {
+    if( !$this->_helper->getLoginConfig('integration_id') ) {
+      return $this;
+    }
+
     $customer = $observer->getEvent()->getCustomer();
 
-    if( $this->_helper->getLoginConfig('integration_id') && !$customer->getAcCustomerId() ) {
-      $params = array(
-        'headers' => array('Api-Token' => $this->_helper->getLoginConfig('key')),
-        'json' => array( 'ecomCustomer' => array(
-          'connectionid' => $this->_helper->getLoginConfig('integration_id'),
-          'externalid' => $customer->getId(),
-          'email' => $customer->getEmail(),
-          'acceptsMarketing' => 1
-        )),
-      );
+    if( $customer->getAcCustomerId() ) {
+      return $this;
+    }
 
-      try {
-        $response = $this->_client->request('POST', $this->_path, $params);
+    $existing_customer = $this->customerExists($customer->getEmail());
+    if( $existing_customer ) {
+      $customer->setAcCustomerId($existing_customer);
+      $customer->save();
+      return $this;
+    }
 
-        if( $response->getStatusCode() == 201 ) {
-          $response_data = json_decode($response->getBody());
-          $this->_logger->info($response_data->ecomCustomer->id);
-          $customer->setAcCustomerId($response_data->ecomCustomer->id);
-          $customer->save();
-        }
-      } catch (GuzzleException $exception) {
-        $this->_logger->info('exception');
-        $this->_logger->info($exception->getMessage());
+    $params = array(
+      'headers' => array('Api-Token' => $this->_helper->getLoginConfig('key')),
+      'json' => array( 'ecomCustomer' => array(
+        'connectionid' => $this->_helper->getLoginConfig('integration_id'),
+        'externalid' => $customer->getId(),
+        'email' => $customer->getEmail(),
+        'acceptsMarketing' => 1
+      )),
+    );
+
+    try {
+      $response = $this->_client->request('POST', $this->_path, $params);
+
+      if( $response->getStatusCode() == 201 ) {
+        $response_data = json_decode($response->getBody());
+        $this->_logger->info($response_data->ecomCustomer->id);
+        $customer->setAcCustomerId($response_data->ecomCustomer->id);
+        $customer->save();
       }
+    } catch (GuzzleException $exception) {
+      $this->_logger->info('exception');
+      $this->_logger->info($exception->getMessage());
     }
 
     return $this;
+  }
+
+  private function customerExists($email)
+  {
+    $params = array(
+      'headers' => array('Api-Token' => $this->_helper->getLoginConfig('key')),
+      'query' => array(
+        'filters' => array(
+          'email' => $email,
+          'connectionid' => $this->_helper->getLoginConfig('integration_id')
+        )
+      )
+    );
+
+    $response = $this->_client->request('GET', $this->_path, $params);
+
+    if( $response->getStatusCode() == 200 ) {
+      $response_data = json_decode($response->getBody());
+      return intval($response_data->meta->total) > 0 ? $response_data->ecomCustomers[0]->id : false;
+    } else {
+      return false;
+    }
   }
 
 }
